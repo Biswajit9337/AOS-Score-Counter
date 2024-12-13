@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Tracker</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #444;
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header Styling */
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        /* Buttons Styling */
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        /* Input Styling */
+        input {
+            padding: 10px;
+            font-size: 1rem;
+            width: 150px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #3498db;
+        }
+
+        /* Player Panel Styling */
+        .player-panel {
+            text-align: center;
+        }
+
+        .input-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 20px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #ecf0f1;
+        }
+
+        td {
+            background-color: #f9f9f9;
+        }
+
+        td:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Highlighting the highest score */
+        .highlight-green {
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .highlight-red {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        /* Score Page Styling */
+        .score-page {
+            display: none;
+        }
+
+        .score-page input {
+            width: 100px;
+        }
+
+        .input-row button {
+            padding: 8px 16px;
+            background-color: #27ae60;
+        }
+
+        .input-row button:hover {
+            background-color: #2ecc71;
+        }
+
+        /* Winner Message Styling */
+        .winner {
+            font-size: 1.5rem;
+            margin-top: 30px;
+            font-weight: bold;
+        }
+
+        .winner.green {
+            color: #27ae60;
+        }
+
+        .winner.red {
+            color: #e74c3c;
+        }
+
+        /* Blind Button Styling */
+        button#blindBtn1,
+        button#blindBtn2,
+        button#blindBtn3,
+        button#blindBtn4 {
+            background-color: #f39c12;
+            margin-left: 10px;
+            padding: 8px 15px;
+        }
+
+        button#blindBtn1:hover,
+        button#blindBtn2:hover,
+        button#blindBtn3:hover,
+        button#blindBtn4:hover {
+            background-color: #e67e22;
+        }
+
+        button#blindBtn1.green,
+        button#blindBtn2.green,
+        button#blindBtn3.green,
+        button#blindBtn4.green {
+            background-color: #2ecc71;
+        }
+
+        /* Responsive Design for Smaller Screens */
+        @media screen and (max-width: 768px) {
+            .input-row {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            table, th, td {
+                font-size: 14px;
+            }
+
+            input {
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ace of Spades</h1>
+
+    <!-- First Page: Player Selection -->
+    <div class="container player-panel" id="playerPanel">
+        <h2>Player Selection</h2>
+        <div id="playersContainer">
+            <label for="player1">Player 1:</label>
+            <input type="text" id="player1" placeholder="Player 1" value="Player 1"><br><br>
+            <label for="player2">Player 2:</label>
+            <input type="text" id="player2" placeholder="Player 2" value="Player 2"><br><br>
+        </div>
+        <button onclick="addPlayer()">Add Player</button>
+        <button onclick="savePlayers()">Save Players</button>
+    </div>
+
+    <!-- Second Page: Score Tracking -->
+    <div class="container score-page" id="scorePage">
+        <h2>Score Counter</h2>
+        <div>
+            <label for="winningPoints">Winning Points:</label>
+            <input type="number" id="winningPoints" value="100">
+        </div>
+        <table>
+            <thead>
+                <tr id="tableHeader">
+                    <th>Round</th>
+                </tr>
+            </thead>
+            <tbody id="scoreTable">
+            </tbody>
+            <tfoot>
+                <tr id="totalRow">
+                    <td><strong>Total</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="input-row" id="bidsRow"></div>
+        <div class="input-row" id="resultsRow"></div>
+        <div>
+            <button onclick="addRound()">Add Round</button>
+            <button onclick="announceScores()">Announce Scores</button>
+        </div>
+        <p id="winnerMessage" class="winner"></p>
+    </div>
+
+    <script>
+        let playerCount = 2; // Starts with 2 players
+        let scores = [];
+        let roundCount = 0;
+        let isBlind = []; // Array to track if a player has clicked blind
+
+        // Show Player Panel on Page Load
+        document.getElementById('playerPanel').style.display = 'block';
+
+        // Add Player
+        function addPlayer() {
+            if (playerCount < 4) {
+                playerCount++;
+                const playersContainer = document.getElementById('playersContainer');
+                const newPlayer = document.createElement('div');
+                newPlayer.innerHTML = `
+                    <label for="player${playerCount}">Player ${playerCount}:</label>
+                    <input type="text" id="player${playerCount}" placeholder="Player ${playerCount}" value="Player ${playerCount}"><br><br>
+                `;
+                playersContainer.appendChild(newPlayer);
+            } else {
+                alert("Maximum 4 players allowed.");
+            }
+        }
+
+        // Save Players and Open Score Page
+        function savePlayers() {
+            const tableHeader = document.getElementById('tableHeader');
+            const totalRow = document.getElementById('totalRow');
+            const bidsRow = document.getElementById('bidsRow');
+            const resultsRow = document.getElementById('resultsRow');
+
+            // Reset headers and rows
+            tableHeader.innerHTML = '<th>Round</th>';
+            totalRow.innerHTML = '<td><strong>Total</strong></td>';
+            bidsRow.innerHTML = '';
+            resultsRow.innerHTML = '';
+
+            scores = new Array(playerCount).fill(0); // Initialize scores array
+            isBlind = new Array(playerCount).fill(false); // Initialize blind status for players
+
+            for (let i = 1; i <= playerCount; i++) {
+                const playerName = document.getElementById(`player${i}`).value || `Player ${i}`;
+
+                // Add player to table header
+                const th = document.createElement('th');
+                th.textContent = playerName;
+                tableHeader.appendChild(th);
+
+                // Add player to total row
+                const td = document.createElement('td');
+                td.id = `totalScore${i}`;
+                td.textContent = 0;
+                totalRow.appendChild(td);
+
+                // Add input fields for bids, results, and blind button
+                bidsRow.innerHTML += `<input type="number" id="bid${i}" placeholder="P${i} Bid">`;
+                resultsRow.innerHTML += `<input type="number" id="result${i}" placeholder="P${i} Result">`;
+                resultsRow.innerHTML += `<button onclick="toggleBlind(${i})" id="blindBtn${i}">Blind</button><br>`;
+            }
+
+            // Show the Score Page
+            document.getElementById('playerPanel').style.display = 'none';
+            document.getElementById('scorePage').style.display = 'block';
+        }
+
+        // Toggle Blind Mode
+        function toggleBlind(playerIndex) {
+            isBlind[playerIndex - 1] = !isBlind[playerIndex - 1]; // Toggle the blind status
+            const btn = document.getElementById(`blindBtn${playerIndex}`);
+            if (isBlind[playerIndex - 1]) {
+                btn.classList.add('green');
+            } else {
+                btn.classList.remove('green');
+            }
+        }
+// Add Round Logic
+function addRound() {
+    roundCount++;
+
+    // Create new row for the current round
+    const roundRow = document.createElement('tr');
+    roundRow.innerHTML = `<td>Round ${roundCount}</td>`;
+
+    for (let i = 1; i <= playerCount; i++) {
+        const bid = document.getElementById(`bid${i}`).value;
+        const result = document.getElementById(`result${i}`).value;
+        let currentRoundResult = 0;
+
+        if (isBlind[i - 1]) {
+            // Blind Mode Calculation
+            const bidInt = parseInt(bid);
+            const resultInt = parseInt(result);
+            
+            if (bidInt === resultInt) {
+                currentRoundResult = bidInt * 2;
+            } else if (bidInt > resultInt) {
+                currentRoundResult = -(bidInt * 2);
+            } else if (bidInt < resultInt) {
+                currentRoundResult = (bidInt * 2) - (resultInt - bidInt);
+            }
+            
+            if (bidInt === 0 && resultInt === 0) {
+                currentRoundResult = 20;
+            }
+            if (bidInt === 0 && resultInt > 0) {
+                currentRoundResult = -20;
+            }
+
+        } else {
+            // Standard Mode Calculation
+            const bidInt = parseInt(bid);
+            const resultInt = parseInt(result);
+
+            if (bidInt === resultInt) {
+                currentRoundResult = bidInt;
+            } else if (bidInt > resultInt) {
+                currentRoundResult = -bidInt;
+            } else if (bidInt < resultInt) {
+                currentRoundResult = bidInt - (resultInt - bidInt);
+            }
+            
+            if (bidInt === 0 && resultInt === 0) {
+                currentRoundResult = 10;
+            }
+            if (bidInt === 0 && resultInt > 0) {
+                currentRoundResult = -10;
+            }
+        }
+
+        // Update the player score
+        scores[i - 1] += currentRoundResult;
+        const scoreCell = document.getElementById(`totalScore${i}`);
+        scoreCell.textContent = scores[i - 1];
+        roundRow.innerHTML += `<td>${currentRoundResult}</td>`;
+    }
+
+    // Append the round row to the table
+    document.getElementById('scoreTable').appendChild(roundRow);
+
+    // Highlight the highest score
+    highlightHighestScore();
+}
+
+
+        // Highlight Highest Score
+        function highlightHighestScore() {
+            const maxScore = Math.max(...scores);
+            scores.forEach((score, i) => {
+                const cell = document.getElementById(`totalScore${i + 1}`);
+                if (score === maxScore) {
+                    cell.classList.add('highlight-green');
+                } else {
+                    cell.classList.remove('highlight-green');
+                }
+            });
+        }
+
+        // Announce Scores
+        function announceScores() {
+            alert(scores.map((score, i) => `Player ${i + 1}: ${score}`).join('\n'));
+        }
+    </script>
+
+</body>
+</html>
